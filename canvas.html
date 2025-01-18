@@ -9,6 +9,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin: 0; /* 기본 여백 제거 */
         }
         #toolbox {
             margin-bottom: 10px;
@@ -32,27 +33,30 @@
         <label for="eraser">지우개 모드:</label>
         <input type="checkbox" id="eraser">
 
-        <label for="eraserSize">지우개 크기:</label>
-        <select id="eraserSize">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-        </select>
-
         <button onclick="clearCanvas()">전체 지우기</button>
         <button onclick="saveCanvas()">저장하기</button>
     </div>
     
-    <canvas id="canvas" width="600" height="400"></canvas>
+    <canvas id="canvas"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            // 브라우저 크기에 맞게 캔버스 크기 설정
+            canvas.width = window.innerWidth * 0.9;
+            canvas.height = window.innerHeight * 0.6;
+            clearCanvas(); // 크기를 조정할 때 캔버스를 지웁니다.
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // 페이지 로드 시 캔버스 크기 설정
+
         let drawing = false;
         let color = document.getElementById('colorPicker').value;
         let lineWidth = document.getElementById('lineWidth').value;
         let eraserMode = false;
-        let eraserSize = document.getElementById('eraserSize').value;
 
         // 마우스 이벤트
         canvas.addEventListener('mousedown', startDrawing);
@@ -84,7 +88,7 @@
             const x = getX(event);
             const y = getY(event);
 
-            ctx.lineWidth = eraserMode ? eraserSize : lineWidth;
+            ctx.lineWidth = eraserMode ? 50 : lineWidth;
             ctx.lineCap = 'round';
             ctx.strokeStyle = eraserMode ? '#FFFFFF' : color;
 
@@ -117,10 +121,6 @@
             if (eraserMode) {
                 color = '#FFFFFF'; // 지우개 모드일 때 색상을 흰색으로 설정
             }
-        });
-
-        document.getElementById('eraserSize').addEventListener('change', (event) => {
-            eraserSize = event.target.value;
         });
 
         function clearCanvas() {
