@@ -20,7 +20,10 @@
     <label for="lineWidth">선 두께:</label>
     <input type="range" id="lineWidth" min="1" max="10" value="2">
 
-    <button onclick="clearCanvas()">지우기</button>
+    <label for="eraser">지우개 모드:</label>
+    <input type="checkbox" id="eraser">
+
+    <button onclick="clearCanvas()">전체 지우기</button>
     <button onclick="saveCanvas()">저장하기</button>
     
     <canvas id="canvas" width="600" height="400"></canvas>
@@ -31,6 +34,7 @@
         let drawing = false;
         let color = document.getElementById('colorPicker').value;
         let lineWidth = document.getElementById('lineWidth').value;
+        let eraserMode = false;
 
         canvas.addEventListener('mousedown', () => {
             drawing = true;
@@ -45,9 +49,9 @@
         canvas.addEventListener('mousemove', (event) => {
             if (!drawing) return;
 
-            ctx.lineWidth = lineWidth;
+            ctx.lineWidth = eraserMode ? lineWidth : lineWidth;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = color;
+            ctx.strokeStyle = eraserMode ? '#FFFFFF' : color; // 지우개 모드일 때 흰색으로 설정
 
             ctx.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
             ctx.stroke();
@@ -57,10 +61,19 @@
 
         document.getElementById('colorPicker').addEventListener('input', (event) => {
             color = event.target.value;
+            eraserMode = false; // 색상을 선택하면 지우개 모드 해제
+            document.getElementById('eraser').checked = false;
         });
 
         document.getElementById('lineWidth').addEventListener('input', (event) => {
             lineWidth = event.target.value;
+        });
+
+        document.getElementById('eraser').addEventListener('change', (event) => {
+            eraserMode = event.target.checked;
+            if (eraserMode) {
+                color = '#FFFFFF'; // 지우개 모드일 때 색상을 흰색으로 설정
+            }
         });
 
         function clearCanvas() {
