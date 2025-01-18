@@ -13,13 +13,24 @@
 </head>
 <body>
     <h1>필기 및 문제 풀이 공간</h1>
-    <canvas id="canvas" width="600" height="400"></canvas>
+    
+    <label for="colorPicker">선 색상:</label>
+    <input type="color" id="colorPicker" value="#000000">
+    
+    <label for="lineWidth">선 두께:</label>
+    <input type="range" id="lineWidth" min="1" max="10" value="2">
+
     <button onclick="clearCanvas()">지우기</button>
+    <button onclick="saveCanvas()">저장하기</button>
+    
+    <canvas id="canvas" width="600" height="400"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let drawing = false;
+        let color = document.getElementById('colorPicker').value;
+        let lineWidth = document.getElementById('lineWidth').value;
 
         canvas.addEventListener('mousedown', () => {
             drawing = true;
@@ -34,9 +45,9 @@
         canvas.addEventListener('mousemove', (event) => {
             if (!drawing) return;
 
-            ctx.lineWidth = 2;
+            ctx.lineWidth = lineWidth;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = color;
 
             ctx.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
             ctx.stroke();
@@ -44,8 +55,23 @@
             ctx.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
         });
 
+        document.getElementById('colorPicker').addEventListener('input', (event) => {
+            color = event.target.value;
+        });
+
+        document.getElementById('lineWidth').addEventListener('input', (event) => {
+            lineWidth = event.target.value;
+        });
+
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveCanvas() {
+            const link = document.createElement('a');
+            link.download = 'myDrawing.png';
+            link.href = canvas.toDataURL();
+            link.click();
         }
     </script>
 </body>
