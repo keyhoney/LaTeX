@@ -30,8 +30,11 @@
         <label for="lineWidth">선 두께:</label>
         <input type="range" id="lineWidth" min="1" max="10" value="2">
 
-        <label for="eraser">지우개 모드:</label>
-        <input type="checkbox" id="eraser">
+        <label for="toolSelect">도구 선택:</label>
+        <select id="toolSelect" onchange="selectTool()">
+            <option value="draw">그리기</option>
+            <option value="eraser">지우기</option>
+        </select>
 
         <button onclick="clearCanvas()">전체 지우기</button>
         <button onclick="saveCanvas()">저장하기</button>
@@ -88,7 +91,7 @@
             const x = getX(event);
             const y = getY(event);
 
-            ctx.lineWidth = eraserMode ? 50 : lineWidth;
+            ctx.lineWidth = eraserMode ? 50 : lineWidth; // 지우개 모드일 때 두께를 50으로 고정
             ctx.lineCap = 'round';
             ctx.strokeStyle = eraserMode ? '#FFFFFF' : color;
 
@@ -108,20 +111,21 @@
 
         document.getElementById('colorPicker').addEventListener('input', (event) => {
             color = event.target.value;
-            eraserMode = false; // 색상을 선택하면 지우개 모드 해제
-            document.getElementById('eraser').checked = false;
+            if (eraserMode) {
+                eraserMode = false; // 색상을 선택하면 지우개 모드 해제
+                document.getElementById('toolSelect').value = 'draw'; // 드로우 모드로 변경
+            }
         });
 
         document.getElementById('lineWidth').addEventListener('input', (event) => {
             lineWidth = event.target.value;
         });
 
-        document.getElementById('eraser').addEventListener('change', (event) => {
-            eraserMode = event.target.checked;
-            if (eraserMode) {
-                color = '#FFFFFF'; // 지우개 모드일 때 색상을 흰색으로 설정
-            }
-        });
+        function selectTool() {
+            const selectedTool = document.getElementById('toolSelect').value;
+            eraserMode = selectedTool === 'eraser';
+            color = eraserMode ? '#FFFFFF' : color; // 지우개 모드일 때 색상을 흰색으로 설정
+        }
 
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
