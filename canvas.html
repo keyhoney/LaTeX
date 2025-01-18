@@ -23,6 +23,13 @@
     <label for="eraser">지우개 모드:</label>
     <input type="checkbox" id="eraser">
 
+    <label for="eraserSize">지우개 크기:</label>
+    <select id="eraserSize">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+    </select>
+
     <button onclick="clearCanvas()">전체 지우기</button>
     <button onclick="saveCanvas()">저장하기</button>
     
@@ -35,6 +42,7 @@
         let color = document.getElementById('colorPicker').value;
         let lineWidth = document.getElementById('lineWidth').value;
         let eraserMode = false;
+        let eraserSize = document.getElementById('eraserSize').value;
 
         // 마우스 이벤트
         canvas.addEventListener('mousedown', startDrawing);
@@ -49,13 +57,9 @@
         function startDrawing(event) {
             drawing = true;
             ctx.beginPath();
-            // 터치 위치 조정
-            if (event.touches) {
-                const touch = event.touches[0];
-                ctx.moveTo(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop);
-            } else {
-                ctx.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
-            }
+            const x = getX(event);
+            const y = getY(event);
+            ctx.moveTo(x, y);
         }
 
         function stopDrawing() {
@@ -67,10 +71,10 @@
             if (!drawing) return;
             event.preventDefault(); // 기본 동작 방지
 
-            const x = event.touches ? event.touches[0].clientX - canvas.offsetLeft : event.clientX - canvas.offsetLeft;
-            const y = event.touches ? event.touches[0].clientY - canvas.offsetTop : event.clientY - canvas.offsetTop;
+            const x = getX(event);
+            const y = getY(event);
 
-            ctx.lineWidth = eraserMode ? lineWidth : lineWidth;
+            ctx.lineWidth = eraserMode ? eraserSize : lineWidth;
             ctx.lineCap = 'round';
             ctx.strokeStyle = eraserMode ? '#FFFFFF' : color;
 
@@ -78,6 +82,14 @@
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(x, y);
+        }
+
+        function getX(event) {
+            return event.touches ? event.touches[0].clientX - canvas.offsetLeft : event.clientX - canvas.offsetLeft;
+        }
+
+        function getY(event) {
+            return event.touches ? event.touches[0].clientY - canvas.offsetTop : event.clientY - canvas.offsetTop;
         }
 
         document.getElementById('colorPicker').addEventListener('input', (event) => {
@@ -95,6 +107,10 @@
             if (eraserMode) {
                 color = '#FFFFFF'; // 지우개 모드일 때 색상을 흰색으로 설정
             }
+        });
+
+        document.getElementById('eraserSize').addEventListener('change', (event) => {
+            eraserSize = event.target.value;
         });
 
         function clearCanvas() {
