@@ -36,28 +36,49 @@
         let lineWidth = document.getElementById('lineWidth').value;
         let eraserMode = false;
 
-        canvas.addEventListener('mousedown', () => {
+        // 마우스 이벤트
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mousemove', draw);
+
+        // 터치 이벤트
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchmove', draw);
+
+        function startDrawing(event) {
             drawing = true;
             ctx.beginPath();
-        });
+            // 터치 위치 조정
+            if (event.touches) {
+                const touch = event.touches[0];
+                ctx.moveTo(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop);
+            } else {
+                ctx.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+            }
+        }
 
-        canvas.addEventListener('mouseup', () => {
+        function stopDrawing() {
             drawing = false;
             ctx.closePath();
-        });
+        }
 
-        canvas.addEventListener('mousemove', (event) => {
+        function draw(event) {
             if (!drawing) return;
+            event.preventDefault(); // 기본 동작 방지
+
+            const x = event.touches ? event.touches[0].clientX - canvas.offsetLeft : event.clientX - canvas.offsetLeft;
+            const y = event.touches ? event.touches[0].clientY - canvas.offsetTop : event.clientY - canvas.offsetTop;
 
             ctx.lineWidth = eraserMode ? lineWidth : lineWidth;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = eraserMode ? '#FFFFFF' : color; // 지우개 모드일 때 흰색으로 설정
+            ctx.strokeStyle = eraserMode ? '#FFFFFF' : color;
 
-            ctx.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+            ctx.lineTo(x, y);
             ctx.stroke();
             ctx.beginPath();
-            ctx.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
-        });
+            ctx.moveTo(x, y);
+        }
 
         document.getElementById('colorPicker').addEventListener('input', (event) => {
             color = event.target.value;
